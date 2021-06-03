@@ -9,17 +9,14 @@ warnings.filterwarnings('ignore')
 
 image_path = "/media/robert/1TB HDD/testing/"
 output_path = "/media/robert/1TB HDD/scene_crops/"
-df_gsv_ids = pd.read_csv("data_files/scene_crop_samples.csv")
-gsv_pano_ids = list(df_gsv_ids['gsv_panorama_id'])
-df_meta = pd.read_csv("csv-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
-df = pd.read_csv("csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
+df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
 
 
 def process_panos(df, pano_ids):
     folder = "overcheck"
     count = 0
     for pano_id in pano_ids:
-        if count == 1000:
+        if count == 10:
             break
 
         df_test_id = df[df['gsv_panorama_id'] == pano_id].copy()
@@ -172,3 +169,6 @@ def generate_annotations(dimensions, label_2_x, label_2_y, crop_width_scaled, cr
     y_normalised, height_normalised = round(label_2_y / dimensions[1], 6), round(crop_height_scaled / dimensions[1], 6)
 
     return x_normalised, y_normalised, width_normalised, height_normalised
+
+process_panos(df, set(df['gsv_panorama_id']))
+# add main function for running
