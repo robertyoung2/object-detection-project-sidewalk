@@ -9,7 +9,6 @@ warnings.filterwarnings('ignore')
 
 image_path = "/media/robert/1TB HDD/testing/"
 output_path = "/media/robert/1TB HDD/scene_crops/"
-df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
 
 
 def process_panos(df, pano_ids):
@@ -170,5 +169,9 @@ def generate_annotations(dimensions, label_2_x, label_2_y, crop_width_scaled, cr
 
     return x_normalised, y_normalised, width_normalised, height_normalised
 
-process_panos(df, set(df['gsv_panorama_id']))
-# add main function for running
+
+def main():
+    print("Starting group scene processing")
+    df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
+    process_panos(df, set(df['gsv_panorama_id']))
+    print("Completed group scene processing")
