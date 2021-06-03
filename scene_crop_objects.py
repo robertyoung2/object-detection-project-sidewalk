@@ -138,3 +138,24 @@ def valid_boundaries(top_left_x, top_left_y, crop_width, crop_height, im_width, 
         top_left_y -= top_left_y + crop_height * scene_height[2] - im_height
 
     return top_left_x, top_left_y
+
+
+def scale_bounding_box(max_size, scene_width, scene_height, x, y, top_left_x, top_left_y, crop_size_base,
+                       crop_size_compare):
+    crop_width, crop_height = crop_size_base, crop_size_base
+
+    scaling_x = max_size[0] / (crop_width * scene_width[2])
+    scaling_y = max_size[1] / (crop_height * scene_height[2])
+
+    label_2_x = scaling_x * (x - top_left_x)
+    label_2_y = scaling_y * (y - top_left_y)
+
+    crop_width_scaled = scaling_x * crop_size_compare
+    crop_height_scaled = scaling_y * crop_size_compare
+
+    top_left_x_scaled = label_2_x - crop_width_scaled / 2
+    top_left_y_scaled = label_2_y - crop_height_scaled / 2
+
+    return label_2_x, label_2_y, top_left_x_scaled, top_left_y_scaled, crop_width_scaled, crop_height_scaled
+
+
