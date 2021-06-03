@@ -7,6 +7,14 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
+image_path = "/media/robert/1TB HDD/testing/"
+output_path = "/media/robert/1TB HDD/scene_crops/"
+df_gsv_ids = pd.read_csv("data_files/scene_crop_samples.csv")
+gsv_pano_ids = list(df_gsv_ids['gsv_panorama_id'])
+df_meta = pd.read_csv("csv-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
+df = pd.read_csv("csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
+
+
 def process_panos(df, pano_ids):
     folder = "overcheck"
     count = 0
