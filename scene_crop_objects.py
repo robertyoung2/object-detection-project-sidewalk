@@ -4,6 +4,7 @@ from PIL import Image
 from PIL import Image, ImageDraw
 import os, sys, random
 import warnings
+import time
 warnings.filterwarnings('ignore')
 
 
@@ -48,6 +49,7 @@ def process_panos(df, pano_ids):
 
             counter += 1
             grouped_scene(df_objects, image_name, folder, (pano_id + "_" + str(counter)))
+    return count
 
 
 def predict_crop_size(sv_image_y):
@@ -171,11 +173,20 @@ def generate_annotations(dimensions, label_2_x, label_2_y, crop_width_scaled, cr
 
 
 def main():
-    print("Starting group scene processing")
+    print("Starting group scene processing.")
     df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
-    process_panos(df, set(df['gsv_panorama_id']))
-    print("Completed group scene processing")
+    start_time = time.time()
+    total_processed = process_panos(df, set(df['gsv_panorama_id']))
+    print("Completed group scene processing. Processed {} GSV panorama IDs.".format(total_processed))
+    end_time = time.time() - start_time
+    if end_time < 60:
+        minutes = 0
+        seconds = round(end_time % 60, 0)
+    else:
+        minutes = round(end_time / 60, 0)
+        seconds = round(end_time % 60, 0)
+    print("Time taken {} minutes and {} seconds.".format(minutes, seconds))
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
     main()
