@@ -120,3 +120,21 @@ def grouped_scene(df_input, path_to_image, folder, file_name):
             myfile.write(to_write + "\n")
 
     cropped_square.save(output_path + "grouped_scene/" + folder + "/" + file_name + ".jpg")
+
+
+def valid_boundaries(top_left_x, top_left_y, crop_width, crop_height, im_width, im_height, scene_width, scene_height):
+    # If top_left_x or top_left_y are less than 0 (origin), set to zero
+    if top_left_x < 0:
+        top_left_x = 0
+
+    if top_left_y < 0:
+        top_left_y = 0
+
+    # If X-right or Y-bottom are greater then the image extents, adjust the scene crop
+    if top_left_x + crop_width * scene_width[2] > im_width:
+        top_left_x -= top_left_x + crop_width * scene_width[2] - im_width
+
+    if top_left_y + crop_height * scene_height[2] > im_height:
+        top_left_y -= top_left_y + crop_height * scene_height[2] - im_height
+
+    return top_left_x, top_left_y
