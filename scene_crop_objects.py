@@ -159,3 +159,8 @@ def scale_bounding_box(max_size, scene_width, scene_height, x, y, top_left_x, to
     return label_2_x, label_2_y, top_left_x_scaled, top_left_y_scaled, crop_width_scaled, crop_height_scaled
 
 
+def generate_annotations(dimensions, label_2_x, label_2_y, crop_width_scaled, crop_height_scaled):
+    x_normalised, width_normalised = round(label_2_x / dimensions[0], 6), round(crop_width_scaled / dimensions[0], 6)
+    y_normalised, height_normalised = round(label_2_y / dimensions[1], 6), round(crop_height_scaled / dimensions[1], 6)
+
+    return x_normalised, y_normalised, width_normalised, height_normalised
