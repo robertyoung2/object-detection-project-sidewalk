@@ -44,3 +44,16 @@ def process_panos(df, pano_ids):
 
             counter += 1
             grouped_scene(df_objects, image_name, folder, (pano_id + "_" + str(counter)))
+
+
+def predict_crop_size(sv_image_y):
+    crop_size = 0
+    distance = max(0, 19.80546390 + 0.01523952 * sv_image_y)
+
+    if distance > 0:
+        crop_size = 8725.6 * (distance ** -1.192)
+    if crop_size > 1500 or distance == 0:
+        crop_size = 1500
+    if crop_size < 50:
+        crop_size = 50
+    return crop_size, distance
