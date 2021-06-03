@@ -175,3 +175,7 @@ def main():
     df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
     process_panos(df, set(df['gsv_panorama_id']))
     print("Completed group scene processing")
+
+
+if __name__ =="__main__":
+    main()
