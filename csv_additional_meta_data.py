@@ -1,3 +1,11 @@
+import os
+import sys
+
+import pandas as pd
+from PIL import Image
+
+image_path = "/media/robert/1TB HDD/testing/"
+
 
 # add image dimensions to metadata csv - new columns [image_width] [image_height]
 def image_dimensions(df):
@@ -40,3 +48,15 @@ def additional_meta(df):
     df = df.sort_values(by=['x', 'y'])
 
     return df
+
+
+# Add additional metadata
+def main():
+    df = pd.read_csv("csv-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
+    df = image_dimensions(df)
+    df = additional_meta(df)
+    df.to_csv("csv-all-metadata-seattle.csv", index=False)
+
+
+if __name__ == "__main__":
+    main()
