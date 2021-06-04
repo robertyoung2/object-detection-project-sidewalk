@@ -23,3 +23,20 @@ def image_dimensions(df):
         else:
             continue
     return df
+
+
+# add additional metadata to csv
+def additional_meta(df):
+    df['scaling_factor'] = df['image_width'] / 13312
+    df['x'] = (((180 - (df['photographer_heading'])) / 360) * df['image_width'] + (
+                df['scaling_factor'] * df['sv_image_x'])) % df['image_width']
+    df['y'] = df['image_height'] / 2 - (df['scaling_factor'] * df['sv_image_y'])
+    df['distance'] = 19.80546390 + 0.01523952 * (df['sv_image_y'])
+    df['crop_size'] = 0
+    df.loc[df['distance'] < 0, 'distance'] = 0
+    df.loc[df['distance'] > 0, 'crop_size'] = 8725.6 * (df['distance'] ** -1.192)
+    df.loc[(df['crop_size'] > 1500) | (df['crop_size'] == 0), 'crop_size'] = 1500
+    df.loc[df['crop_size'] < 50] = 50
+    df = df.sort_values(by=['x', 'y'])
+
+    return df
