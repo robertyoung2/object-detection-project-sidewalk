@@ -1,4 +1,5 @@
 import multiprocessing
+import sys
 from multiprocessing import Process
 
 import os
@@ -14,7 +15,13 @@ warnings.filterwarnings('ignore')
 image_path = "/home/people/06681344/scratch/all_images/"
 output_path = "/home/people/06681344/scratch/grouped_scene/"
 
-df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
+if len(sys.argv) > 1:
+    df_path = sys.argv[1]
+else:
+    df_path = "data_csv/csv-all-metadata-seattle.csv"
+
+print(len(sys.argv))
+df = pd.read_csv(df_path).sort_values(by=['gsv_panorama_id'])
 df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
 
 
@@ -132,9 +139,9 @@ def grouped_scene(df_input, path_to_image, folder, file_name):
             label_2_x, label_2_y, top_left_x_scaled, top_left_y_scaled, crop_width_scaled, crop_height_scaled = bounding_scaled
 
             # for debug - show centre and bounding box
-            draw_2.ellipse((label_2_x - r, label_2_y - r, label_2_x + r, label_2_y + r), fill=128)
-            draw_2.rectangle([top_left_x_scaled, top_left_y_scaled, top_left_x_scaled + crop_width_scaled,
-                              top_left_y_scaled + crop_height_scaled], outline='red', width=10)
+            # draw_2.ellipse((label_2_x - r, label_2_y - r, label_2_x + r, label_2_y + r), fill=128)
+            # draw_2.rectangle([top_left_x_scaled, top_left_y_scaled, top_left_x_scaled + crop_width_scaled,
+            #                   top_left_y_scaled + crop_height_scaled], outline='red', width=10)
 
             an = generate_annotations(max_size, label_2_x, label_2_y, crop_width_scaled, crop_height_scaled)
 
