@@ -1,6 +1,7 @@
 import os
 import time
 import warnings
+import random
 
 import pandas as pd
 from PIL import Image, ImageDraw
@@ -15,10 +16,9 @@ output_path = "/media/robert/1TB HDD/scene_crops/"
 def process_panos(df, pano_ids):
     folder = "overcheck"
     count = 0
-    for pano_id in pano_ids:
-        if count == 10:
-            break
+    valid_ids = valid_labels(pano_ids)
 
+    for pano_id in valid_ids:
         df_test_id = df[df['gsv_panorama_id'] == pano_id].copy()
         columns = df_test_id.columns
         counter = 0
@@ -50,6 +50,22 @@ def process_panos(df, pano_ids):
             counter += 1
             grouped_scene(df_objects, image_name, folder, (pano_id + "_" + str(counter)))
     return count
+
+
+def valid_labels(pano_ids):
+
+    all_pano_ids = pano_ids
+    random.shuffle(list(all_pano_ids))  # Randomly shuffle the list
+    valid_ids = []
+    print(len(all_pano_ids))
+    for pano_id in all_pano_ids:
+        image_path_folder = image_path + pano_id[:2] + "/"
+        image_name = image_path_folder + pano_id + ".jpg"
+
+        if os.path.exists(image_name):
+            valid_ids.append(pano_id)
+    print("The count of valid image ids for dropped curbs is:", len(valid_ids))
+    return valid_ids
 
 
 def predict_crop_size(sv_image_y):
@@ -175,6 +191,7 @@ def generate_annotations(dimensions, label_2_x, label_2_y, crop_width_scaled, cr
 def main():
     print("Starting group scene processing.")
     df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
+    df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
     start_time = time.time()
     total_processed = process_panos(df, set(df['gsv_panorama_id']))
     print("Completed group scene processing. Processed {} GSV panorama IDs.".format(total_processed))
@@ -190,3 +207,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
