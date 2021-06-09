@@ -1,3 +1,6 @@
+import multiprocessing
+from multiprocessing import Process
+
 import os
 import time
 import warnings
@@ -8,17 +11,18 @@ from PIL import Image, ImageDraw
 
 warnings.filterwarnings('ignore')
 
-
 image_path = "/media/robert/1TB HDD/testing/"
-output_path = "/media/robert/1TB HDD/scene_crops/"
+output_path = "/home/robert/Documents/testing/"
+
+df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
+df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
 
 
-def process_panos(df, pano_ids):
+def process_panos(pano_ids):
     folder = "overcheck"
     count = 0
-    valid_ids = valid_labels(pano_ids)
+    for pano_id in pano_ids:
 
-    for pano_id in valid_ids:
         df_test_id = df[df['gsv_panorama_id'] == pano_id].copy()
         columns = df_test_id.columns
         counter = 0
@@ -55,16 +59,14 @@ def process_panos(df, pano_ids):
 def valid_labels(pano_ids):
 
     all_pano_ids = pano_ids
-    random.shuffle(list(all_pano_ids))  # Randomly shuffle the list
+    # random.shuffle(list(all_pano_ids))  # Randomly shuffle the list
+    all_pano_ids = list(all_pano_ids)
     valid_ids = []
-    print(len(all_pano_ids))
     for pano_id in all_pano_ids:
         image_path_folder = image_path + pano_id[:2] + "/"
         image_name = image_path_folder + pano_id + ".jpg"
-
         if os.path.exists(image_name):
             valid_ids.append(pano_id)
-    print("The count of valid image ids for dropped curbs is:", len(valid_ids))
     return valid_ids
 
 
@@ -193,8 +195,12 @@ def main():
     df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
     df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
     start_time = time.time()
-    total_processed = process_panos(df, set(df['gsv_panorama_id']))
-    print("Completed group scene processing. Processed {} GSV panorama IDs.".format(total_processed))
+    # total_processed = process_panos(set(df['gsv_panorama_id']))
+    pano_ids = set(df['gsv_panorama_id'])
+    valid_ids = valid_labels(pano_ids)
+    pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    pool.map(process_panos, (pano_ids,))
+
     end_time = time.time() - start_time
     if end_time < 60:
         minutes = 0
