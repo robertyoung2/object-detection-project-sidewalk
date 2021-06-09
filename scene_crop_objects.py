@@ -11,15 +11,15 @@ from PIL import Image, ImageDraw
 
 warnings.filterwarnings('ignore')
 
-image_path = "/media/robert/1TB HDD/testing/"
-output_path = "/home/robert/Documents/testing/"
+image_path = "/home/people/06681344/scratch/all_images/"
+output_path = "/home/people/06681344/scratch/grouped_scene/"
 
 df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
 df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
 
 
 def process_panos(pano_ids):
-    folder = "overcheck"
+    folder = "run_1"
     count = 0
     for pano_id in pano_ids:
 
@@ -59,7 +59,7 @@ def process_panos(pano_ids):
 def valid_labels(pano_ids):
 
     all_pano_ids = pano_ids
-    # random.shuffle(list(all_pano_ids))  # Randomly shuffle the list
+    random.shuffle(list(all_pano_ids))  # Randomly shuffle the list
     all_pano_ids = list(all_pano_ids)
     valid_ids = []
     for pano_id in all_pano_ids:
