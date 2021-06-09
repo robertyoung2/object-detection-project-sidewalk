@@ -20,7 +20,6 @@ if len(sys.argv) > 1:
 else:
     df_path = "data_csv/csv-all-metadata-seattle.csv"
 
-print(len(sys.argv))
 df = pd.read_csv(df_path).sort_values(by=['gsv_panorama_id'])
 df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
 
@@ -28,8 +27,8 @@ df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
 def process_panos(pano_ids):
     folder = "run_1"
     count = 0
-    for pano_id in pano_ids:
 
+    for pano_id in pano_ids:
         df_test_id = df[df['gsv_panorama_id'] == pano_id].copy()
         columns = df_test_id.columns
         counter = 0
@@ -64,12 +63,13 @@ def process_panos(pano_ids):
 
 
 def valid_labels(pano_ids):
-
     all_pano_ids = pano_ids
     random.shuffle(list(all_pano_ids))  # Randomly shuffle the list
     all_pano_ids = list(all_pano_ids)
     valid_ids = []
+
     for pano_id in all_pano_ids:
+
         image_path_folder = image_path + pano_id[:2] + "/"
         image_name = image_path_folder + pano_id + ".jpg"
         if os.path.exists(image_name):
@@ -202,11 +202,10 @@ def main():
     df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
     df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
     start_time = time.time()
-    # total_processed = process_panos(set(df['gsv_panorama_id']))
     pano_ids = set(df['gsv_panorama_id'])
+
     valid_ids = valid_labels(pano_ids)
-    pool = multiprocessing.Pool(multiprocessing.cpu_count())
-    pool.map(process_panos, (pano_ids,))
+    process_panos(valid_ids)
 
     end_time = time.time() - start_time
     if end_time < 60:
