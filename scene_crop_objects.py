@@ -6,14 +6,18 @@ import os
 import time
 import warnings
 import random
+import pickle
 
 import pandas as pd
 from PIL import Image, ImageDraw
 
 warnings.filterwarnings('ignore')
 
-image_path = "/home/people/06681344/scratch/all_images/"
-output_path = "/home/people/06681344/scratch/grouped_scene/"
+# image_path = "/home/people/06681344/scratch/all_images/"
+# output_path = "/home/people/06681344/scratch/grouped_scene/"
+
+image_path = "/media/robert/1TB HDD/testing/"
+output_path = "/media/robert/1TB HDD/bug_check/"
 
 if len(sys.argv) > 1:
     df_path = sys.argv[1]
@@ -24,7 +28,7 @@ df = pd.read_csv(df_path).sort_values(by=['gsv_panorama_id'])
 df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
 
 
-def process_panos(pano_ids):
+def process_panos(directories_pickle, pano_ids):
     folder = "run_1"
     count = 0
 
@@ -32,8 +36,7 @@ def process_panos(pano_ids):
         df_test_id = df[df['gsv_panorama_id'] == pano_id].copy()
         columns = df_test_id.columns
         counter = 0
-        image_path_folder = image_path + pano_id[:2] + "/"
-        image_name = image_path_folder + pano_id + ".jpg"
+        image_name =construct_image_path(directories_pickle, pano_id)
 
         if not os.path.exists(image_name):
             continue
@@ -62,16 +65,14 @@ def process_panos(pano_ids):
     return count
 
 
-def valid_labels(pano_ids):
+def valid_labels(directories_pickle, pano_ids):
     all_pano_ids = pano_ids
     random.shuffle(list(all_pano_ids))  # Randomly shuffle the list
     all_pano_ids = list(all_pano_ids)
     valid_ids = []
 
     for pano_id in all_pano_ids:
-
-        image_path_folder = image_path + pano_id[:2] + "/"
-        image_name = image_path_folder + pano_id + ".jpg"
+        image_name = construct_image_path(directories_pickle, pano_id)
         if os.path.exists(image_name):
             valid_ids.append(pano_id)
     return valid_ids
@@ -88,6 +89,13 @@ def predict_crop_size(sv_image_y):
     if crop_size < 50:
         crop_size = 50
     return crop_size, distance
+
+
+def construct_image_path(directories_pickle, pano_id):
+    mapped_pano_id = directories_pickle[pano_id[0:2].lower()]
+    image_path_folder = image_path + mapped_pano_id + "/"
+    image_name = image_path_folder + pano_id + ".jpg"
+    return image_name
 
 
 def grouped_scene(df_input, path_to_image, folder, file_name):
@@ -203,9 +211,10 @@ def main():
     df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
     start_time = time.time()
     pano_ids = set(df['gsv_panorama_id'])
-
-    valid_ids = valid_labels(pano_ids)
-    process_panos(valid_ids)
+    with open('data_text/directories.pickle', 'rb') as handle:
+        directories_pickle = pickle.load(handle)
+        valid_ids = valid_labels(directories_pickle, pano_ids)
+        process_panos(directories_pickle, valid_ids)
 
     end_time = time.time() - start_time
     if end_time < 60:
