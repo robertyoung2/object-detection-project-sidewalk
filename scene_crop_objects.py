@@ -13,11 +13,11 @@ from PIL import Image, ImageDraw
 
 warnings.filterwarnings('ignore')
 
-# image_path = "/home/people/06681344/scratch/all_images/"
-# output_path = "/home/people/06681344/scratch/grouped_scene/"
+image_path = "/home/people/06681344/scratch/all_images/"
+output_path = "/home/people/06681344/scratch/grouped_scene/"
 
-image_path = "/media/robert/1TB HDD/testing/"
-output_path = "/media/robert/1TB HDD/bug_check/"
+# image_path = "/media/robert/1TB HDD/testing/"
+# output_path = "/media/robert/1TB HDD/bug_check/"
 
 if len(sys.argv) > 1:
     df_path = sys.argv[1]
@@ -28,7 +28,7 @@ df = pd.read_csv(df_path).sort_values(by=['gsv_panorama_id'])
 df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
 
 
-def process_panos(directories_pickle, pano_ids):
+def process_panos(df, directories_pickle, pano_ids):
     folder = "run_1"
     count = 0
 
@@ -36,7 +36,7 @@ def process_panos(directories_pickle, pano_ids):
         df_test_id = df[df['gsv_panorama_id'] == pano_id].copy()
         columns = df_test_id.columns
         counter = 0
-        image_name =construct_image_path(directories_pickle, pano_id)
+        image_name = construct_image_path(directories_pickle, pano_id)
 
         if not os.path.exists(image_name):
             continue
@@ -75,6 +75,7 @@ def valid_labels(directories_pickle, pano_ids):
         image_name = construct_image_path(directories_pickle, pano_id)
         if os.path.exists(image_name):
             valid_ids.append(pano_id)
+
     return valid_ids
 
 
@@ -207,14 +208,14 @@ def generate_annotations(dimensions, label_2_x, label_2_y, crop_width_scaled, cr
 
 def main():
     print("Starting group scene processing.")
-    df = pd.read_csv("data_csv/csv-all-metadata-seattle.csv").sort_values(by=['gsv_panorama_id'])
+    df = pd.read_csv(df_path).sort_values(by=['gsv_panorama_id'])
     df = df.loc[df['label_type_id'] == 1]  # only look at labels for dropped curbs
     start_time = time.time()
     pano_ids = set(df['gsv_panorama_id'])
     with open('data_text/directories.pickle', 'rb') as handle:
         directories_pickle = pickle.load(handle)
         valid_ids = valid_labels(directories_pickle, pano_ids)
-        process_panos(directories_pickle, valid_ids)
+        process_panos(df, directories_pickle, valid_ids)
 
     end_time = time.time() - start_time
     if end_time < 60:
